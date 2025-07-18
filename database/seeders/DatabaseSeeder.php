@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             AdminSeeder::class,
+            RentLuxuriaSeeder::class,
         ]);
 
         // إنشاء 10 عملاء
