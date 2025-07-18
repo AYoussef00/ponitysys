@@ -1,67 +1,195 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# PointSys - نظام إدارة الولاء
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+نظام متكامل لإدارة برامج الولاء والنقاط للشركات والمتاجر.
 
-## About Laravel
+## المميزات الرئيسية
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### 🔐 نظام متعدد المستخدمين (Multi-Tenancy)
+- كل شركة لها حساب منفصل
+- عزل كامل للبيانات بين الشركات
+- إدارة مستقلة للعملاء والنقاط والمكافآت
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 📱 واجهة برمجة التطبيقات (API)
+- RESTful API كامل
+- مصادقة باستخدام API Keys
+- دعم للبيئة التجريبية والإنتاج
+- Webhooks للتكامل مع الأنظمة الخارجية
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 🎯 إدارة العملاء
+- تسجيل العملاء
+- تتبع رصيد النقاط
+- إدارة المستويات (Tiers)
+- سجل كامل للمعاملات
 
-## Learning Laravel
+### 🏆 نظام المكافآت
+- إنشاء مكافآت متنوعة
+- استبدال النقاط بالمكافآت
+- إدارة الكميات والتواريخ
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 📊 التحليلات والتقارير
+- لوحة تحكم تفاعلية
+- إحصائيات مفصلة
+- تقارير قابلة للتصدير
+- رسوم بيانية
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### ⚙️ الإعدادات المتقدمة
+- إدارة مفاتيح API
+- إعدادات Webhooks
+- تكامل مع التطبيقات المحمولة
+- دليل API شامل
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## التثبيت والإعداد
 
-## Laravel Sponsors
+### المتطلبات
+- PHP 8.1 أو أحدث
+- Laravel 10.x
+- MySQL 5.7 أو أحدث
+- Composer
+- Node.js & NPM
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### خطوات التثبيت
 
-### Premium Partners
+1. **استنساخ المشروع**
+```bash
+git clone https://github.com/AYoussef00/ponitysys.git
+cd ponitysys
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+2. **تثبيت التبعيات**
+```bash
+composer install
+npm install
+```
 
-## Contributing
+3. **إعداد البيئة**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+4. **تكوين قاعدة البيانات**
+```bash
+# تعديل ملف .env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=pointsys
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
 
-## Code of Conduct
+5. **تشغيل الـ Migrations**
+```bash
+php artisan migrate
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+6. **إضافة البيانات الأولية**
+```bash
+php artisan db:seed
+```
 
-## Security Vulnerabilities
+7. **بناء الأصول**
+```bash
+npm run build
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+8. **تشغيل الخادم**
+```bash
+php artisan serve
+```
 
-## License
+## استخدام API
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# ponitysys
+### Base URL
+```
+https://pointsys.clarastars.com/api/v1
+```
+
+### المصادقة
+```bash
+Authorization: Bearer YOUR_API_KEY
+```
+
+### أمثلة الاستخدام
+
+#### تسجيل عميل جديد
+```bash
+curl -X POST https://pointsys.clarastars.com/api/v1/customers/register \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "أحمد محمد",
+    "email": "ahmed@example.com",
+    "phone": "0501234567"
+  }'
+```
+
+#### إضافة نقاط
+```bash
+curl -X POST https://pointsys.clarastars.com/api/v1/customers/points/add \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customer_id": 1,
+    "points": 100,
+    "description": "شراء منتج",
+    "reference_id": "ORDER_12345"
+  }'
+```
+
+#### استعلام الرصيد
+```bash
+curl -X GET https://pointsys.clarastars.com/api/v1/customers/1/balance \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## هيكل المشروع
+
+```
+loyaltySaas/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Api/           # API Controllers
+│   │   │   └── ...            # Web Controllers
+│   │   └── Middleware/        # Custom Middleware
+│   └── Models/                # Eloquent Models
+├── database/
+│   ├── migrations/            # Database Migrations
+│   └── seeders/              # Database Seeders
+├── resources/
+│   ├── views/                # Blade Templates
+│   ├── css/                  # Stylesheets
+│   └── js/                   # JavaScript
+├── routes/
+│   ├── api.php              # API Routes
+│   └── web.php              # Web Routes
+└── public/                  # Public Assets
+```
+
+## المساهمة
+
+1. Fork المشروع
+2. إنشاء branch جديد (`git checkout -b feature/AmazingFeature`)
+3. Commit التغييرات (`git commit -m 'Add some AmazingFeature'`)
+4. Push إلى Branch (`git push origin feature/AmazingFeature`)
+5. فتح Pull Request
+
+## الترخيص
+
+هذا المشروع مرخص تحت رخصة MIT - انظر ملف [LICENSE](LICENSE) للتفاصيل.
+
+## الدعم
+
+للدعم الفني أو الاستفسارات:
+- البريد الإلكتروني: support@clarastars.com
+- الموقع: https://pointsys.clarastars.com
+
+## التحديثات
+
+### الإصدار 1.0.0
+- إطلاق النظام الأساسي
+- دعم Multi-tenancy
+- API كامل
+- واجهة إدارة متقدمة
+- نظام تقارير شامل
