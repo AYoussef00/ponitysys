@@ -1,3 +1,12 @@
+// CSRF Token Setup for jQuery AJAX
+$(document).ready(function() {
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+});
+
 // Sidebar Toggle for Mobile
 document.addEventListener('DOMContentLoaded', function() {
     const sidebarToggle = document.querySelector('.sidebar-toggle');

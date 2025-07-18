@@ -14,11 +14,11 @@
     <!-- User Profile -->
     <div class="user-profile">
         <div class="user-avatar">
-            <img src="https://ui-avatars.com/api/?name=Abdelrahman+Yousef&background=4e73df&color=ffffff" alt="User Avatar">
+            <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'User') }}&background=4e73df&color=ffffff" alt="User Avatar">
             <span class="status-badge online"></span>
         </div>
         <div class="user-info">
-            <h6 class="user-name">عبدالرحمن يوسف</h6>
+            <h6 class="user-name">{{ auth()->user()->name ?? 'Unknown User' }}</h6>
             <span class="user-role">مدير النظام</span>
         </div>
         <div class="user-actions">
@@ -70,7 +70,7 @@
                     <a href="{{ route('customers.index') }}" class="nav-link {{ request()->routeIs('customers.*') ? 'active' : '' }}">
                         <i class="bi bi-people"></i>
                         <span>العملاء</span>
-                        <span class="menu-badge">24</span>
+                        <span class="menu-badge">{{ \App\Models\Customer::where('user_id', auth()->id())->count() }}</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -108,6 +108,40 @@
                     <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                         <i class="bi bi-gear"></i>
                         <span>الإعدادات</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- API Menu -->
+        <div class="nav-section">
+            <span class="nav-section-title">
+                <i class="bi bi-code-slash me-2"></i>
+                API والتكامل
+            </span>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="{{ route('settings.api') }}" class="nav-link {{ request()->routeIs('settings.api') ? 'active' : '' }}">
+                        <i class="bi bi-key"></i>
+                        <span>مفاتيح API</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('settings.api.docs.guide') }}" class="nav-link {{ request()->routeIs('settings.api.docs.*') ? 'active' : '' }}">
+                        <i class="bi bi-book"></i>
+                        <span>دليل API</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('settings.api') }}#webhooks" class="nav-link">
+                        <i class="bi bi-webhook"></i>
+                        <span>Webhooks</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('settings.api.stats') }}" class="nav-link {{ request()->routeIs('settings.api.stats') ? 'active' : '' }}">
+                        <i class="bi bi-graph-up"></i>
+                        <span>إحصائيات API</span>
                     </a>
                 </li>
             </ul>
@@ -210,8 +244,8 @@
 }
 
 .user-avatar img {
-    width: 48px;
-    height: 48px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
 }
 
@@ -231,16 +265,22 @@
 
 .user-info {
     flex: 1;
+    min-width: 0;
+    overflow: visible;
+    margin-right: 10px;
 }
 
 .user-name {
     margin: 0;
-    font-size: 1rem;
+    font-size: 0.8rem;
     font-weight: 600;
+    white-space: nowrap;
+    overflow: visible;
+    max-width: none;
 }
 
 .user-role {
-    font-size: 0.875rem;
+    font-size: 0.7rem;
     color: #666;
 }
 
@@ -296,29 +336,63 @@
     padding: 1.5rem 1rem;
 }
 
+.nav-section-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
+    padding: 0 0.5rem;
+}
+
+.nav-section-title i {
+    color: #4e73df;
+}
+
+.nav-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-item {
+    margin-bottom: 0.25rem;
+}
+
 .nav-link {
     display: flex;
     align-items: center;
-    padding: 0.75rem 1rem;
+    padding: 0.6rem 1rem;
     color: #666;
     text-decoration: none;
     border-radius: 0.5rem;
     margin-bottom: 0.25rem;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
 }
 
 .nav-link i {
     margin-left: 1rem;
-    font-size: 1.25rem;
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
 }
 
 .nav-link:hover {
     background: #f8f9fa;
     color: #333;
+    transform: translateX(-5px);
 }
 
 .nav-link.active {
     background: #4e73df;
     color: white;
+    box-shadow: 0 2px 8px rgba(78, 115, 223, 0.3);
+}
+
+.nav-link.active:hover {
+    transform: translateX(-5px);
 }
 
 @media (max-width: 991.98px) {

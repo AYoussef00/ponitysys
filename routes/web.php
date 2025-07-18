@@ -46,6 +46,8 @@ Route::middleware('auth')->group(function () {
             ->name('customers.create');
         Route::post('/', [CustomerController::class, 'store'])
             ->name('customers.store');
+        Route::post('/add-points', [CustomerController::class, 'addPoints'])
+            ->name('customers.add-points');
         Route::get('/{customer}', [CustomerController::class, 'show'])
             ->name('customers.show');
         Route::get('/{customer}/edit', [CustomerController::class, 'edit'])
@@ -102,10 +104,14 @@ Route::middleware('auth')->group(function () {
         // مسارات API Settings
         Route::get('/api', [ApiSettingsController::class, 'index'])->name('settings.api');
         Route::get('/api/docs', [ApiSettingsController::class, 'docs'])->name('settings.api.docs');
+        Route::get('/api/docs/guide', [ApiDocsController::class, 'show'])->name('settings.api.docs.guide');
+        Route::get('/api/stats', [ApiSettingsController::class, 'stats'])->name('settings.api.stats');
         Route::get('/settings/api/docs/download', [ApiDocsController::class, 'downloadPdf'])->name('settings.api.docs.download');
         Route::post('/api/keys', [ApiSettingsController::class, 'createApiKey'])->name('settings.api.keys.create');
         Route::put('/api/keys/{apiKey}/regenerate', [ApiSettingsController::class, 'regenerateApiKey'])->name('settings.api.keys.regenerate');
         Route::delete('/api/keys/{apiKey}', [ApiSettingsController::class, 'deleteApiKey'])->name('settings.api.keys.delete');
+        Route::get('/api/keys', [ApiSettingsController::class, 'getApiKeys'])->name('settings.api.keys.get');
+        Route::post('/api/keys/test', [ApiSettingsController::class, 'testApiKey'])->name('settings.api.keys.test');
         Route::post('/api/webhooks', [ApiSettingsController::class, 'updateWebhook'])->name('settings.api.webhooks.update');
         Route::post('/api/webhooks/{webhook}/test', [ApiSettingsController::class, 'testWebhook'])->name('settings.api.webhooks.test');
     });

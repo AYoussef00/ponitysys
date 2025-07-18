@@ -1,551 +1,516 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Loyalty System API Integration Guide</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            margin: 40px;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 20px;
-        }
-        .logo {
-            max-width: 150px;
-            margin-bottom: 20px;
-        }
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-        h2 {
-            color: #2980b9;
-            margin-top: 30px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-        h3 {
-            color: #34495e;
-            margin-top: 25px;
-        }
-        .section {
-            margin-bottom: 40px;
-        }
-        code {
-            background: #f8f9fa;
-            padding: 2px 5px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-        pre {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            overflow-x: auto;
-        }
-        .note {
-            background: #fff3cd;
-            border: 1px solid #ffeeba;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        th, td {
-            border: 1px solid #dee2e6;
-            padding: 12px;
-            text-align: left;
-        }
-        th {
-            background: #f8f9fa;
-        }
-        .endpoint {
-            background: #e9ecef;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 15px 0;
-        }
-        .method {
-            display: inline-block;
-            padding: 3px 6px;
-            border-radius: 3px;
-            color: white;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-        .get { background: #17a2b8; }
-        .post { background: #28a745; }
-        .put { background: #ffc107; }
-        .delete { background: #dc3545; }
-        .parameter-table {
-            width: 100%;
-            margin: 10px 0;
-        }
-        .parameter-table th {
-            background: #f8f9fa;
-            font-weight: bold;
-        }
-        .required {
-            color: #dc3545;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>Loyalty System API Integration Guide</h1>
-        <p>Version 1.0</p>
+@extends('layouts.app')
+
+@section('header')
+<div class="d-flex justify-content-between align-items-center">
+    <div>
+        <h4 class="mb-0">دليل API</h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">لوحة التحكم</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">الإعدادات</a></li>
+                <li class="breadcrumb-item active">دليل API</li>
+            </ol>
+        </nav>
     </div>
-
-    <div class="section">
-        <h2>1. Introduction</h2>
-        <p>
-            Welcome to the Loyalty System API documentation. This guide provides comprehensive information about integrating
-            our loyalty program into your existing systems. Our API follows RESTful principles and uses standard HTTP
-            methods for all operations.
-        </p>
-
-        <h3>Base URL</h3>
-        <pre><code>Production: https://api.loyaltysystem.com/v1
-Test: https://api-test.loyaltysystem.com/v1</code></pre>
+    <div>
+        <a href="{{ route('settings.api.docs.download') }}" class="btn btn-primary">
+            <i class="bi bi-download me-2"></i>
+            تحميل PDF
+        </a>
     </div>
+</div>
+@endsection
 
-    <div class="section">
-        <h2>2. Authentication</h2>
-        <p>
-            All API requests require authentication using API keys. Include your API key in the Authorization header
-            of each request.
-        </p>
-        <pre><code>Authorization: Bearer YOUR_API_KEY</code></pre>
-
-        <div class="note">
-            <strong>Security Note:</strong>
-            <ul>
-                <li>Keep your API keys secure and never share them</li>
-                <li>Use test API keys for development and testing</li>
-                <li>Rotate your API keys periodically for security</li>
-                <li>Each API key should have a specific purpose and environment</li>
-            </ul>
+@section('content')
+<div class="row g-4">
+    <!-- القائمة الجانبية -->
+    <div class="col-md-3">
+        <div class="card shadow-sm sticky-top" style="top: 20px;">
+            <div class="card-header bg-transparent">
+                <h6 class="mb-0">محتويات الدليل</h6>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="#introduction" class="list-group-item list-group-item-action">مقدمة</a>
+                <a href="#authentication" class="list-group-item list-group-item-action">المصادقة</a>
+                <a href="#endpoints" class="list-group-item list-group-item-action">النقاط النهائية</a>
+                <a href="#customers" class="list-group-item list-group-item-action">إدارة العملاء</a>
+                <a href="#points" class="list-group-item list-group-item-action">إدارة النقاط</a>
+                <a href="#rewards" class="list-group-item list-group-item-action">المكافآت</a>
+                <a href="#redemptions" class="list-group-item list-group-item-action">الاستبدالات</a>
+                <a href="#webhooks" class="list-group-item list-group-item-action">Webhooks</a>
+                <a href="#errors" class="list-group-item list-group-item-action">رموز الخطأ</a>
+            </div>
         </div>
     </div>
 
-    <div class="section">
-        <h2>3. Customer Management</h2>
+    <!-- المحتوى الرئيسي -->
+    <div class="col-md-9">
+        <!-- مقدمة -->
+        <div class="card shadow-sm mb-4" id="introduction">
+            <div class="card-header bg-transparent">
+                <h5 class="mb-0">مقدمة</h5>
+            </div>
+            <div class="card-body">
+                <p>مرحباً بك في دليل API لنظام إدارة الولاء. يوفر هذا الدليل معلومات شاملة حول كيفية استخدام واجهة برمجة التطبيقات لدمج نظام الولاء مع تطبيقاتك.</p>
 
-        <h3>Register a New Customer</h3>
-        <div class="endpoint">
-            <span class="method post">POST</span>
-            <code>/customers</code>
+                <div class="alert alert-info">
+                    <h6>المعلومات الأساسية:</h6>
+                    <ul class="mb-0">
+                        <li><strong>Base URL:</strong> <code>{{ url('/api/v1') }}</code></li>
+                        <li><strong>Content-Type:</strong> <code>application/json</code></li>
+                        <li><strong>الاستجابة:</strong> جميع الاستجابات بصيغة JSON</li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        <p>Create a new customer in the loyalty program.</p>
 
-        <h4>Request Parameters</h4>
-        <table class="parameter-table">
-            <tr>
-                <th>Parameter</th>
-                <th>Type</th>
-                <th>Required</th>
-                <th>Description</th>
-            </tr>
-            <tr>
-                <td>name</td>
-                <td>string</td>
-                <td><span class="required">Yes</span></td>
-                <td>Customer's full name</td>
-            </tr>
-            <tr>
-                <td>email</td>
-                <td>string</td>
-                <td><span class="required">Yes</span></td>
-                <td>Customer's email address</td>
-            </tr>
-            <tr>
-                <td>phone</td>
-                <td>string</td>
-                <td><span class="required">Yes</span></td>
-                <td>Customer's phone number</td>
-            </tr>
-        </table>
+        <!-- المصادقة -->
+        <div class="card shadow-sm mb-4" id="authentication">
+            <div class="card-header bg-transparent">
+                <h5 class="mb-0">المصادقة</h5>
+            </div>
+            <div class="card-body">
+                <p>يستخدم النظام مصادقة API Key. يجب تضمين مفتاح API في رأس الطلب.</p>
 
-        <h4>Example Request</h4>
-        <pre><code>{
-    "name": "John Doe",
-    "email": "john@example.com",
-    "phone": "+966501234567"
+                <div class="mb-3">
+                    <h6>طريقة الاستخدام:</h6>
+                    <pre><code>Authorization: Bearer YOUR_API_KEY</code></pre>
+                </div>
+
+                <div class="mb-3">
+                    <h6>مثال cURL:</h6>
+                    <pre><code>curl -H "Authorization: Bearer sk_test_1234567890abcdef" \
+     -H "Content-Type: application/json" \
+     https://your-domain.com/api/v1/customers</code></pre>
+                </div>
+
+                <div class="alert alert-warning">
+                    <strong>ملاحظة:</strong> احتفظ بمفتاح API آمناً ولا تشاركه مع أي شخص.
+                </div>
+            </div>
+        </div>
+
+        <!-- النقاط النهائية -->
+        <div class="card shadow-sm mb-4" id="endpoints">
+            <div class="card-header bg-transparent">
+                <h5 class="mb-0">النقاط النهائية المتاحة</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>الطريقة</th>
+                                <th>المسار</th>
+                                <th>الوصف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge bg-success">POST</span></td>
+                                <td><code>/customers/register</code></td>
+                                <td>تسجيل عميل جديد</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-primary">GET</span></td>
+                                <td><code>/customers/{id}/balance</code></td>
+                                <td>استعلام رصيد النقاط</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-success">POST</span></td>
+                                <td><code>/customers/points/add</code></td>
+                                <td>إضافة نقاط للعميل</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-primary">GET</span></td>
+                                <td><code>/rewards</code></td>
+                                <td>عرض المكافآت المتاحة</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-success">POST</span></td>
+                                <td><code>/rewards/redeem</code></td>
+                                <td>استبدال مكافأة</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- إدارة العملاء -->
+        <div class="card shadow-sm mb-4" id="customers">
+            <div class="card-header bg-transparent">
+                <h5 class="mb-0">إدارة العملاء</h5>
+            </div>
+            <div class="card-body">
+                <h6>تسجيل عميل جديد</h6>
+                <div class="mb-3">
+                    <strong>POST /api/v1/customers/register</strong>
+                </div>
+
+                <div class="mb-3">
+                    <h6>المعاملات المطلوبة:</h6>
+                    <pre><code>{
+    "name": "أحمد محمد",
+    "email": "ahmed@example.com",
+    "phone": "0501234567"
 }</code></pre>
+                </div>
 
-        <h4>Example Response</h4>
-        <pre><code>{
+                <div class="mb-3">
+                    <h6>مثال cURL:</h6>
+                    <pre><code>curl -X POST "{{ url('/api/v1/customers/register') }}" \
+     -H "Authorization: Bearer YOUR_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+         "name": "أحمد محمد",
+         "email": "ahmed@example.com",
+         "phone": "0501234567"
+     }'</code></pre>
+                </div>
+
+                <div class="mb-3">
+                    <h6>الاستجابة المتوقعة:</h6>
+                    <pre><code>{
+    "status": "success",
+    "message": "تم تسجيل العميل بنجاح",
+    "data": {
+        "customer_id": 1,
+        "name": "أحمد محمد",
+        "email": "ahmed@example.com",
+        "phone": "0501234567",
+        "points_balance": 0
+    }
+}</code></pre>
+                </div>
+
+                <hr>
+
+                <h6>استعلام رصيد النقاط</h6>
+                <div class="mb-3">
+                    <strong>GET /api/v1/customers/{id}/balance</strong>
+                </div>
+
+                <div class="mb-3">
+                    <h6>مثال cURL:</h6>
+                    <pre><code>curl -X GET "{{ url('/api/v1/customers/1/balance') }}" \
+     -H "Authorization: Bearer YOUR_API_KEY"</code></pre>
+                </div>
+
+                <div class="mb-3">
+                    <h6>الاستجابة المتوقعة:</h6>
+                    <pre><code>{
     "status": "success",
     "data": {
-        "customer_id": "cust_123456",
-        "name": "John Doe",
-        "email": "john@example.com",
-        "phone": "+966501234567",
-        "points_balance": 0,
-        "created_at": "2024-03-20T10:00:00Z"
+        "customer_id": 1,
+        "name": "أحمد محمد",
+        "points_balance": 150,
+        "total_earned": 300,
+        "total_redeemed": 150
     }
 }</code></pre>
-    </div>
-
-    <div class="section">
-        <h2>4. Points Management</h2>
-
-        <h3>Add Points</h3>
-        <div class="endpoint">
-            <span class="method post">POST</span>
-            <code>/points/add</code>
+                </div>
+            </div>
         </div>
-        <p>Add points to a customer's account.</p>
 
-        <h4>Request Parameters</h4>
-        <table class="parameter-table">
-            <tr>
-                <th>Parameter</th>
-                <th>Type</th>
-                <th>Required</th>
-                <th>Description</th>
-            </tr>
-            <tr>
-                <td>customer_id</td>
-                <td>string</td>
-                <td><span class="required">Yes</span></td>
-                <td>Customer's unique identifier</td>
-            </tr>
-            <tr>
-                <td>points</td>
-                <td>integer</td>
-                <td><span class="required">Yes</span></td>
-                <td>Number of points to add</td>
-            </tr>
-            <tr>
-                <td>reference_id</td>
-                <td>string</td>
-                <td><span class="required">Yes</span></td>
-                <td>Your unique transaction reference</td>
-            </tr>
-            <tr>
-                <td>description</td>
-                <td>string</td>
-                <td>No</td>
-                <td>Description of the transaction</td>
-            </tr>
-        </table>
+        <!-- إدارة النقاط -->
+        <div class="card shadow-sm mb-4" id="points">
+            <div class="card-header bg-transparent">
+                <h5 class="mb-0">إدارة النقاط</h5>
+            </div>
+            <div class="card-body">
+                <h6>إضافة نقاط للعميل</h6>
+                <div class="mb-3">
+                    <strong>POST /api/v1/customers/points/add</strong>
+                </div>
 
-        <h4>Example Request</h4>
-        <pre><code>{
-    "customer_id": "cust_123456",
+                <div class="mb-3">
+                    <h6>المعاملات المطلوبة:</h6>
+                    <pre><code>{
+    "customer_id": 1,
     "points": 100,
-    "reference_id": "order_789",
-    "description": "Purchase at Store #123"
+    "description": "شراء منتج",
+    "reference_id": "ORDER_12345"
 }</code></pre>
+                </div>
 
-        <h3>Get Points Balance</h3>
-        <div class="endpoint">
-            <span class="method get">GET</span>
-            <code>/points/balance/{customer_id}</code>
-        </div>
-        <p>Retrieve a customer's current points balance and history.</p>
+                <div class="mb-3">
+                    <h6>مثال cURL:</h6>
+                    <pre><code>curl -X POST "{{ url('/api/v1/customers/points/add') }}" \
+     -H "Authorization: Bearer YOUR_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+         "customer_id": 1,
+         "points": 100,
+         "description": "شراء منتج",
+         "reference_id": "ORDER_12345"
+     }'</code></pre>
+                </div>
 
-        <h4>Example Response</h4>
-        <pre><code>{
+                <div class="mb-3">
+                    <h6>الاستجابة المتوقعة:</h6>
+                    <pre><code>{
     "status": "success",
+    "message": "تم إضافة النقاط بنجاح",
     "data": {
-        "customer_id": "cust_123456",
-        "points_balance": 1500,
-        "lifetime_points": 2000,
-        "redeemed_points": 500,
-        "transactions": [
-            {
-                "id": "txn_123",
-                "type": "earn",
-                "points": 100,
-                "description": "Purchase at Store #123",
-                "created_at": "2024-03-20T10:00:00Z"
-            }
-        ]
+        "transaction_id": 123,
+        "customer_id": 1,
+        "points_added": 100,
+        "new_balance": 250,
+        "description": "شراء منتج",
+        "reference_id": "ORDER_12345"
     }
 }</code></pre>
-    </div>
-
-    <div class="section">
-        <h2>5. Rewards Management</h2>
-
-        <h3>List Available Rewards</h3>
-        <div class="endpoint">
-            <span class="method get">GET</span>
-            <code>/rewards</code>
+                </div>
+            </div>
         </div>
-        <p>Get a list of all available rewards.</p>
 
-        <h3>Redeem Reward</h3>
-        <div class="endpoint">
-            <span class="method post">POST</span>
-            <code>/rewards/redeem</code>
-        </div>
-        <p>Redeem points for a specific reward.</p>
+        <!-- المكافآت -->
+        <div class="card shadow-sm mb-4" id="rewards">
+            <div class="card-header bg-transparent">
+                <h5 class="mb-0">المكافآت</h5>
+            </div>
+            <div class="card-body">
+                <h6>عرض المكافآت المتاحة</h6>
+                <div class="mb-3">
+                    <strong>GET /api/v1/rewards</strong>
+                </div>
 
-        <h4>Request Parameters</h4>
-        <table class="parameter-table">
-            <tr>
-                <th>Parameter</th>
-                <th>Type</th>
-                <th>Required</th>
-                <th>Description</th>
-            </tr>
-            <tr>
-                <td>customer_id</td>
-                <td>string</td>
-                <td><span class="required">Yes</span></td>
-                <td>Customer's unique identifier</td>
-            </tr>
-            <tr>
-                <td>reward_id</td>
-                <td>string</td>
-                <td><span class="required">Yes</span></td>
-                <td>Reward's unique identifier</td>
-            </tr>
-        </table>
-    </div>
+                <div class="mb-3">
+                    <h6>مثال cURL:</h6>
+                    <pre><code>curl -X GET "{{ url('/api/v1/rewards') }}" \
+     -H "Authorization: Bearer YOUR_API_KEY"</code></pre>
+                </div>
 
-    <div class="section">
-        <h2>6. Webhooks</h2>
-        <p>
-            Webhooks allow you to receive real-time notifications when specific events occur in the loyalty system.
-        </p>
-
-        <h3>Available Events</h3>
-        <table class="parameter-table">
-            <tr>
-                <th>Event</th>
-                <th>Description</th>
-                <th>Payload Example</th>
-            </tr>
-            <tr>
-                <td>customer.created</td>
-                <td>Triggered when a new customer is registered</td>
-                <td><pre><code>{
-    "event": "customer.created",
-    "customer_id": "cust_123456",
-    "created_at": "2024-03-20T10:00:00Z"
-}</code></pre></td>
-            </tr>
-            <tr>
-                <td>points.added</td>
-                <td>Triggered when points are added to a customer</td>
-                <td><pre><code>{
-    "event": "points.added",
-    "customer_id": "cust_123456",
-    "points": 100,
-    "balance": 1500,
-    "reference_id": "order_789"
-}</code></pre></td>
-            </tr>
-            <tr>
-                <td>reward.redeemed</td>
-                <td>Triggered when a reward is redeemed</td>
-                <td><pre><code>{
-    "event": "reward.redeemed",
-    "customer_id": "cust_123456",
-    "reward_id": "reward_789",
-    "points_used": 500
-}</code></pre></td>
-            </tr>
-        </table>
-
-        <h3>Webhook Security</h3>
-        <p>
-            All webhook requests include a signature header for verification. Verify this signature to ensure the
-            webhook came from our system.
-        </p>
-        <pre><code>X-Webhook-Signature: sha256=...</code></pre>
-    </div>
-
-    <div class="section">
-        <h2>7. Error Handling</h2>
-        <p>
-            The API uses standard HTTP response codes and returns detailed error messages in JSON format.
-        </p>
-
-        <h3>Common Error Codes</h3>
-        <table class="parameter-table">
-            <tr>
-                <th>Code</th>
-                <th>Description</th>
-                <th>Example</th>
-            </tr>
-            <tr>
-                <td>400</td>
-                <td>Bad Request - Invalid parameters</td>
-                <td><pre><code>{
-    "error": "validation_error",
-    "message": "Invalid parameters",
-    "details": {
-        "points": "Must be a positive number"
-    }
-}</code></pre></td>
-            </tr>
-            <tr>
-                <td>401</td>
-                <td>Unauthorized - Invalid API key</td>
-                <td><pre><code>{
-    "error": "unauthorized",
-    "message": "Invalid API key"
-}</code></pre></td>
-            </tr>
-            <tr>
-                <td>404</td>
-                <td>Not Found - Resource doesn't exist</td>
-                <td><pre><code>{
-    "error": "not_found",
-    "message": "Customer not found"
-}</code></pre></td>
-            </tr>
-            <tr>
-                <td>429</td>
-                <td>Too Many Requests - Rate limit exceeded</td>
-                <td><pre><code>{
-    "error": "rate_limit_exceeded",
-    "message": "Too many requests"
-}</code></pre></td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="section">
-        <h2>8. Code Examples</h2>
-
-        <h3>PHP Example</h3>
-        <pre><code>// Using Guzzle HTTP client
-$client = new \GuzzleHttp\Client([
-    'base_uri' => 'https://api.loyaltysystem.com/v1',
-    'headers' => [
-        'Authorization' => 'Bearer ' . YOUR_API_KEY,
-        'Accept' => 'application/json',
+                <div class="mb-3">
+                    <h6>الاستجابة المتوقعة:</h6>
+                    <pre><code>{
+    "status": "success",
+    "data": [
+        {
+            "id": 1,
+            "title": "خصم 10%",
+            "description": "خصم 10% على المشتريات",
+            "points_required": 100,
+            "type": "discount",
+            "value": 10,
+            "status": "active"
+        },
+        {
+            "id": 2,
+            "title": "هدية مجانية",
+            "description": "هدية مجانية مع الطلب",
+            "points_required": 200,
+            "type": "gift",
+            "value": null,
+            "status": "active"
+        }
     ]
-]);
-
-// Add points to customer
-try {
-    $response = $client->post('/points/add', [
-        'json' => [
-            'customer_id' => 'cust_123456',
-            'points' => 100,
-            'reference_id' => 'order_789',
-            'description' => 'Purchase at Store #123'
-        ]
-    ]);
-
-    $data = json_decode($response->getBody(), true);
-    // Handle success
-} catch (\GuzzleHttp\Exception\RequestException $e) {
-    // Handle error
 }</code></pre>
+                </div>
 
-        <h3>Node.js Example</h3>
-        <pre><code>const axios = require('axios');
+                <hr>
 
-const client = axios.create({
-    baseURL: 'https://api.loyaltysystem.com/v1',
-    headers: {
-        'Authorization': `Bearer ${YOUR_API_KEY}`,
-        'Accept': 'application/json'
-    }
-});
+                <h6>استبدال مكافأة</h6>
+                <div class="mb-3">
+                    <strong>POST /api/v1/rewards/redeem</strong>
+                </div>
 
-// Add points to customer
-async function addPoints() {
-    try {
-        const response = await client.post('/points/add', {
-            customer_id: 'cust_123456',
-            points: 100,
-            reference_id: 'order_789',
-            description: 'Purchase at Store #123'
-        });
+                <div class="mb-3">
+                    <h6>المعاملات المطلوبة:</h6>
+                    <pre><code>{
+    "customer_id": 1,
+    "reward_id": 1
+}</code></pre>
+                </div>
 
-        console.log(response.data);
-    } catch (error) {
-        console.error(error.response.data);
+                <div class="mb-3">
+                    <h6>مثال cURL:</h6>
+                    <pre><code>curl -X POST "{{ url('/api/v1/rewards/redeem') }}" \
+     -H "Authorization: Bearer YOUR_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+         "customer_id": 1,
+         "reward_id": 1
+     }'</code></pre>
+                </div>
+
+                <div class="mb-3">
+                    <h6>الاستجابة المتوقعة:</h6>
+                    <pre><code>{
+    "status": "success",
+    "message": "تم استبدال المكافأة بنجاح",
+    "data": {
+        "redemption_id": 456,
+        "customer_id": 1,
+        "reward_id": 1,
+        "reward_title": "خصم 10%",
+        "points_used": 100,
+        "remaining_balance": 150
     }
 }</code></pre>
+                </div>
+            </div>
+        </div>
 
-        <h3>Python Example</h3>
-        <pre><code>import requests
+        <!-- Webhooks -->
+        <div class="card shadow-sm mb-4" id="webhooks">
+            <div class="card-header bg-transparent">
+                <h5 class="mb-0">Webhooks</h5>
+            </div>
+            <div class="card-body">
+                <p>يمكنك إعداد Webhooks لتلقي إشعارات فورية عند حدوث أحداث معينة في النظام.</p>
 
-API_KEY = 'your_api_key'
-BASE_URL = 'https://api.loyaltysystem.com/v1'
+                <h6>الأحداث المتاحة:</h6>
+                <ul>
+                    <li><code>customer.created</code> - عند تسجيل عميل جديد</li>
+                    <li><code>points.added</code> - عند إضافة نقاط</li>
+                    <li><code>reward.redeemed</code> - عند استبدال مكافأة</li>
+                </ul>
 
-headers = {
-    'Authorization': f'Bearer {API_KEY}',
-    'Accept': 'application/json'
+                <div class="mb-3">
+                    <h6>مثال على طلب Webhook:</h6>
+                    <pre><code>POST https://your-webhook-url.com/webhook
+Content-Type: application/json
+
+{
+    "event": "customer.created",
+    "timestamp": "2024-01-15T10:30:00Z",
+    "data": {
+        "customer_id": 1,
+        "name": "أحمد محمد",
+        "email": "ahmed@example.com"
+    }
+}</code></pre>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>ملاحظة:</strong> يجب أن يستجيب Webhook URL برمز 200 OK لتأكيد استلام الإشعار.
+                </div>
+            </div>
+        </div>
+
+        <!-- رموز الخطأ -->
+        <div class="card shadow-sm mb-4" id="errors">
+            <div class="card-header bg-transparent">
+                <h5 class="mb-0">رموز الخطأ</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>رمز الحالة</th>
+                                <th>الوصف</th>
+                                <th>الحل</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge bg-danger">400</span></td>
+                                <td>طلب غير صحيح</td>
+                                <td>تحقق من صحة البيانات المرسلة</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-danger">401</span></td>
+                                <td>غير مصرح</td>
+                                <td>تحقق من صحة مفتاح API</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-danger">403</span></td>
+                                <td>محظور</td>
+                                <td>ليس لديك صلاحية للوصول لهذا المورد</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-danger">404</span></td>
+                                <td>غير موجود</td>
+                                <td>المورد المطلوب غير موجود</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-danger">422</span></td>
+                                <td>بيانات غير صالحة</td>
+                                <td>تحقق من صحة البيانات المرسلة</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-danger">500</span></td>
+                                <td>خطأ في الخادم</td>
+                                <td>تواصل مع الدعم الفني</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mb-3">
+                    <h6>مثال على استجابة خطأ:</h6>
+                    <pre><code>{
+    "status": "error",
+    "message": "بيانات غير صالحة",
+    "errors": {
+        "email": ["البريد الإلكتروني مطلوب"],
+        "phone": ["رقم الهاتف غير صحيح"]
+    }
+}</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+pre {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
 }
 
-# Add points to customer
-def add_points():
-    data = {
-        'customer_id': 'cust_123456',
-        'points': 100,
-        'reference_id': 'order_789',
-        'description': 'Purchase at Store #123'
-    }
+code {
+    background-color: #f8f9fa;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+}
 
-    response = requests.post(
-        f'{BASE_URL}/points/add',
-        json=data,
-        headers=headers
-    )
+.sticky-top {
+    z-index: 1020;
+}
+</style>
 
-    return response.json()</code></pre>
-    </div>
+<script>
+// Smooth scrolling for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
 
-    <div class="section">
-        <h2>9. Rate Limits</h2>
-        <p>
-            To ensure system stability, the API has rate limits:
-        </p>
-        <table class="parameter-table">
-            <tr>
-                <th>Plan</th>
-                <th>Rate Limit</th>
-                <th>Burst Limit</th>
-            </tr>
-            <tr>
-                <td>Standard</td>
-                <td>100 requests/minute</td>
-                <td>150 requests/minute</td>
-            </tr>
-            <tr>
-                <td>Premium</td>
-                <td>500 requests/minute</td>
-                <td>750 requests/minute</td>
-            </tr>
-        </table>
-        <p>Rate limit headers are included in all responses:</p>
-        <pre><code>X-RateLimit-Limit: 100
-X-RateLimit-Remaining: 95
-X-RateLimit-Reset: 1616239022</code></pre>
-    </div>
+// Highlight active section in sidebar
+window.addEventListener('scroll', function() {
+    const sections = document.querySelectorAll('[id]');
+    const navLinks = document.querySelectorAll('.list-group-item');
 
-    <div class="section">
-        <h2>10. Support</h2>
-        <p>
-            If you need assistance or have questions:
-        </p>
-        <ul>
-            <li>Technical Support: support@loyaltysystem.com</li>
-            <li>API Status: <a href="https://status.loyaltysystem.com">status.loyaltysystem.com</a></li>
-            <li>Support Hours: 24/7</li>
-        </ul>
-    </div>
-</body>
-</html>
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        if (pageYOffset >= sectionTop - 100) {
+            current = section.getAttribute('id');
+        }
+    });
+
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) {
+            link.classList.add('active');
+        }
+    });
+});
+</script>
+@endsection

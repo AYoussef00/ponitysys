@@ -15,12 +15,12 @@
         <div class="d-flex align-items-center">
             <div class="flex-shrink-0">
                 <div class="avatar-wrapper rounded-circle bg-primary bg-opacity-10" style="width: 48px; height: 48px;">
-                    <img src="https://ui-avatars.com/api/?name=احمد+محمد&background=4e73df&color=ffffff"
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=4e73df&color=ffffff"
                          class="rounded-circle w-100 h-100" alt="User Avatar">
                 </div>
             </div>
             <div class="flex-grow-1 ms-3">
-                <h6 class="mb-1 fw-semibold">عبدالرحمن يوسف</h6>
+                <h6 class="mb-1 fw-semibold">{{ auth()->user()->name ?? 'Unknown User' }}</h6>
                 <p class="text-muted small mb-0">مدير النظام</p>
             </div>
             <div class="dropdown">
@@ -31,7 +31,14 @@
                     <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>الملف الشخصي</a></li>
                     <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>الإعدادات</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-box-arrow-right me-2"></i>تسجيل الخروج</a></li>
+                    <li>
+                        <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="dropdown-item text-danger" style="border: none; background: none; width: 100%; text-align: right;">
+                                <i class="bi bi-box-arrow-right me-2"></i>تسجيل الخروج
+                            </button>
+                        </form>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -57,7 +64,7 @@
                             <i class="bi bi-people"></i>
                         </div>
                         <span>العملاء</span>
-                        <span class="badge bg-primary rounded-pill ms-auto">{{ \App\Models\Customer::count() }}</span>
+                        <span class="badge bg-primary rounded-pill ms-auto">{{ \App\Models\Customer::where('user_id', auth()->id())->count() }}</span>
                     </a>
                 </li>
                 <li class="nav-item">

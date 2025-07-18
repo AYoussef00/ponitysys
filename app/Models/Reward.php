@@ -10,6 +10,7 @@ class Reward extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'title',
         'description',
         'points_required',
@@ -17,4 +18,9 @@ class Reward extends Model
         'status',
         'expires_at',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

@@ -28,12 +28,16 @@ class CustomerApiController extends Controller
             ], 422);
         }
 
+        // الحصول على user_id من مفتاح API
+        $apiKeyUserId = $request->get('api_key_user_id');
+
         $customer = Customer::create([
+            'user_id' => $apiKeyUserId,
             'name' => $request->name,
             'phone' => $request->phone,
             'email' => $request->email,
             'points_balance' => 0,
-            'tier' => 'bronze', // المستوى الافتراضي
+            'status' => 'active', // إضافة حالة العميل
         ]);
 
         // إطلاق حدث تسجيل عميل جديد للـ webhook
@@ -71,7 +75,18 @@ class CustomerApiController extends Controller
             ], 422);
         }
 
-        $customer = Customer::findOrFail($request->customer_id);
+        // التحقق من أن العميل ينتمي لنفس المستخدم الذي يملك مفتاح API
+        $apiKeyUserId = $request->get('api_key_user_id');
+        $customer = Customer::where('id', $request->customer_id)
+                           ->where('user_id', $apiKeyUserId)
+                           ->first();
+
+        if (!$customer) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'العميل غير موجود أو لا يمكن الوصول إليه'
+            ], 404);
+        }
 
         // إضافة النقاط وتسجيل المعاملة
         $customer->points_balance += $request->points;
@@ -79,7 +94,7 @@ class CustomerApiController extends Controller
 
         $transaction = $customer->transactions()->create([
             'points' => $request->points,
-            'type' => 'credit',
+            'type' => 'earn', // تغيير من credit إلى earn
             'description' => $request->description,
             'reference_id' => $request->reference_id
         ]);
@@ -102,9 +117,20 @@ class CustomerApiController extends Controller
     /**
      * الاستعلام عن رصيد النقاط
      */
-    public function getBalance($customerId)
+    public function getBalance(Request $request, $customerId)
     {
-        $customer = Customer::findOrFail($customerId);
+        // التحقق من أن العميل ينتمي لنفس المستخدم الذي يملك مفتاح API
+        $apiKeyUserId = $request->get('api_key_user_id');
+        $customer = Customer::where('id', $customerId)
+                           ->where('user_id', $apiKeyUserId)
+                           ->first();
+
+        if (!$customer) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'العميل غير موجود أو لا يمكن الوصول إليه'
+            ], 404);
+        }
 
         return response()->json([
             'status' => 'success',
@@ -113,9 +139,30 @@ class CustomerApiController extends Controller
                 'name' => $customer->name,
                 'points_balance' => $customer->points_balance,
                 'tier' => $customer->tier,
-                'total_earned' => $customer->transactions()->where('type', 'credit')->sum('points'),
-                'total_redeemed' => $customer->transactions()->where('type', 'debit')->sum('points')
+                'total_earned' => $customer->transactions()->where('type', 'earn')->sum('points'),
+                'total_redeemed' => abs($customer->transactions()->where('type', 'redeem')->sum('points'))
             ]
+        ]);
+    }
+
+    /**
+     * عرض المكافآت المتاحة
+     */
+    public function getRewards()
+    {
+        $rewards = \App\Models\Reward::where('status', 'active')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $rewards->map(function($reward) {
+                return [
+                    'id' => $reward->id,
+                    'title' => $reward->title,
+                    'description' => $reward->description,
+                    'points_required' => $reward->points_required,
+                    'status' => $reward->status
+                ];
+            })
         ]);
     }
 
@@ -137,7 +184,18 @@ class CustomerApiController extends Controller
             ], 422);
         }
 
-        $customer = Customer::findOrFail($request->customer_id);
+        // التحقق من أن العميل ينتمي لنفس المستخدم الذي يملك مفتاح API
+        $apiKeyUserId = $request->get('api_key_user_id');
+        $customer = Customer::where('id', $request->customer_id)
+                           ->where('user_id', $apiKeyUserId)
+                           ->first();
+
+        if (!$customer) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'العميل غير موجود أو لا يمكن الوصول إليه'
+            ], 404);
+        }
         $reward = \App\Models\Reward::findOrFail($request->reward_id);
 
         // التحقق من كفاية النقاط
@@ -148,29 +206,31 @@ class CustomerApiController extends Controller
             ], 400);
         }
 
-        // خصم النقاط وتسجيل الاستبدال
+        // خصم النقاط وتسجيل المعاملة
         $customer->points_balance -= $reward->points_required;
         $customer->save();
 
-        $redemption = $customer->redemptions()->create([
-            'reward_id' => $reward->id,
-            'points_spent' => $reward->points_required,
-            'status' => 'pending'
+        // تسجيل المعاملة
+        $transaction = $customer->transactions()->create([
+            'points' => -$reward->points_required,
+            'type' => 'redeem',
+            'description' => 'استبدال: ' . $reward->title,
+            'reference_id' => 'REDEEM_' . time()
         ]);
 
         // إطلاق حدث استبدال نقاط للـ webhook
-        event(new \App\Events\RewardRedeemed($customer, $redemption));
+        event(new \App\Events\RewardRedeemed($customer, $transaction));
 
         return response()->json([
             'status' => 'success',
             'message' => 'تم استبدال النقاط بنجاح',
             'data' => [
-                'redemption_id' => $redemption->id,
+                'transaction_id' => $transaction->id,
                 'points_spent' => $reward->points_required,
                 'new_balance' => $customer->points_balance,
                 'reward' => [
                     'id' => $reward->id,
-                    'name' => $reward->name,
+                    'title' => $reward->title,
                     'description' => $reward->description
                 ]
             ]

@@ -43,6 +43,8 @@
                             @if($stats['total_points'] != 0)
                             <i class="bi bi-arrow-@if($stats['points_change'] >= 0)up @else down @endif"></i>
                             {{ abs($stats['points_change']) }}% من الشهر السابق
+                            @else
+                            <span class="text-muted">لا توجد بيانات سابقة</span>
                             @endif
                         </small>
                     </div>

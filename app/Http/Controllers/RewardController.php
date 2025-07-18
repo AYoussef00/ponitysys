@@ -9,7 +9,8 @@ class RewardController extends Controller
 {
     public function index()
     {
-        $rewards = Reward::all();
+        // جلب المكافآت الخاصة بالمستخدم (الشركة) الحالي فقط
+        $rewards = Reward::where('user_id', auth()->id())->get();
         return view('rewards.index', compact('rewards'));
     }
 
@@ -28,6 +29,7 @@ class RewardController extends Controller
             'status' => 'required|in:active,inactive,draft',
             'expires_at' => 'nullable|date',
         ]);
+        $validated['user_id'] = auth()->id(); // ربط المكافأة بالمستخدم (الشركة) الحالي
         Reward::create($validated);
         return redirect()->route('rewards.index')->with('success', 'تمت إضافة المكافأة بنجاح');
     }

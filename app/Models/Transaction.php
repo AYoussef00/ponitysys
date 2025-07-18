@@ -14,7 +14,13 @@ class Transaction extends Model
         'points',
         'type',
         'category',
-        'description'
+        'description',
+        'reference_id',
+        'metadata'
+    ];
+
+    protected $casts = [
+        'metadata' => 'array'
     ];
 
     public function customer()

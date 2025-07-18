@@ -15,41 +15,46 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        // إحصائيات سريعة
+        // إحصائيات سريعة - محسوبة من قاعدة البيانات للمستخدم (الشركة) الحالي فقط
         $stats = [
-            'total_points' => 0, // دائماً صفر
-            'redeemed_points' => 0, // دائماً صفر
-            'active_customers' => 0, // دائماً صفر
-            'avg_points' => 0 // دائماً صفر
+            'total_points' => Customer::where('user_id', auth()->id())->sum('points_balance'), // إجمالي النقاط الحالية
+            'redeemed_points' => abs(Transaction::whereHas('customer', function($q) { $q->where('user_id', auth()->id()); })->where('type', 'redeem')->sum('points')), // النقاط المستبدلة
+            'active_customers' => Customer::where('user_id', auth()->id())->where('status', 'active')->count(), // العملاء النشطين
+            'avg_points' => round(Customer::where('user_id', auth()->id())->where('status', 'active')->avg('points_balance') ?? 0, 1), // متوسط النقاط
+            'total_customers' => Customer::where('user_id', auth()->id())->count(), // إجمالي العملاء
+            'total_transactions' => Transaction::whereHas('customer', function($q) { $q->where('user_id', auth()->id()); })->count(), // إجمالي المعاملات
+            'earned_points' => Transaction::whereHas('customer', function($q) { $q->where('user_id', auth()->id()); })->where('type', 'earn')->sum('points'), // النقاط المكتسبة
+            'rewards_count' => Reward::where('user_id', auth()->id())->where('status', 'active')->count() // عدد المكافآت النشطة
         ];
 
-        // نسبة التغيير من الشهر السابق
+        // نسبة التغيير من الشهر السابق للمستخدم (الشركة) الحالي فقط
         $lastMonth = Carbon::now()->subMonth();
         $stats['points_change'] = $this->calculateChange(
-            Transaction::whereMonth('created_at', $lastMonth->month)->sum('points'),
-            Transaction::whereMonth('created_at', Carbon::now()->month)->sum('points')
+            Transaction::whereHas('customer', function($q) { $q->where('user_id', auth()->id()); })->whereMonth('created_at', $lastMonth->month)->sum('points'),
+            Transaction::whereHas('customer', function($q) { $q->where('user_id', auth()->id()); })->whereMonth('created_at', Carbon::now()->month)->sum('points')
         );
 
         $stats['redeemed_change'] = $this->calculateChange(
-            Transaction::where('type', 'redeem')
+            Transaction::whereHas('customer', function($q) { $q->where('user_id', auth()->id()); })->where('type', 'redeem')
                 ->whereMonth('created_at', $lastMonth->month)
                 ->sum('points'),
-            Transaction::where('type', 'redeem')
+            Transaction::whereHas('customer', function($q) { $q->where('user_id', auth()->id()); })->where('type', 'redeem')
                 ->whereMonth('created_at', Carbon::now()->month)
                 ->sum('points')
         );
 
         $stats['customers_change'] = $this->calculateChange(
-            Customer::where('status', 'active')
+            Customer::where('user_id', auth()->id())->where('status', 'active')
                 ->whereMonth('created_at', $lastMonth->month)
                 ->count(),
-            Customer::where('status', 'active')
+            Customer::where('user_id', auth()->id())->where('status', 'active')
                 ->whereMonth('created_at', Carbon::now()->month)
                 ->count()
         );
 
-        // توزيع النقاط خلال السنة
-        $yearlyPoints = Transaction::selectRaw('MONTH(created_at) as month, SUM(points) as total_points')
+        // توزيع النقاط خلال السنة للمستخدم (الشركة) الحالي فقط
+        $yearlyPoints = Transaction::whereHas('customer', function($q) { $q->where('user_id', auth()->id()); })
+            ->selectRaw('MONTH(created_at) as month, SUM(points) as total_points')
             ->whereYear('created_at', Carbon::now()->year)
             ->groupBy('month')
             ->orderBy('month')
@@ -63,8 +68,9 @@ class DashboardController extends Controller
             $monthlyPoints[$i] = $yearlyPoints[$i] ?? 0;
         }
 
-        // توزيع فئات النقاط
-        $pointsCategories = Transaction::selectRaw('category, SUM(points) as total_points')
+        // توزيع فئات النقاط للمستخدم (الشركة) الحالي فقط
+        $pointsCategories = Transaction::whereHas('customer', function($q) { $q->where('user_id', auth()->id()); })
+            ->selectRaw('category, SUM(points) as total_points')
             ->whereNotNull('category')
             ->groupBy('category')
             ->get()
@@ -75,14 +81,16 @@ class DashboardController extends Controller
                 ];
             });
 
-        // مقارنة النقاط المكتسبة والمستبدلة للأسبوع الحالي
+        // مقارنة النقاط المكتسبة والمستبدلة للأسبوع الحالي للمستخدم (الشركة) الحالي فقط
         $weekComparison = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
-            $earned = Transaction::whereDate('created_at', $date)
+            $earned = Transaction::whereHas('customer', function($q) { $q->where('user_id', auth()->id()); })
+                ->whereDate('created_at', $date)
                 ->where('type', 'earn')
                 ->sum('points');
-            $redeemed = Transaction::whereDate('created_at', $date)
+            $redeemed = Transaction::whereHas('customer', function($q) { $q->where('user_id', auth()->id()); })
+                ->whereDate('created_at', $date)
                 ->where('type', 'redeem')
                 ->sum('points');
 

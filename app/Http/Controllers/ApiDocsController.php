@@ -2,23 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Response;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 
 class ApiDocsController extends Controller
 {
+    public function show()
+    {
+        return view('docs.api-guide');
+    }
+
     public function downloadPdf()
     {
-        // Generate PDF from the blade view
-        $pdf = PDF::loadView('docs.api-guide');
-
-        // Set paper size to A4
-        $pdf->setPaper('a4');
-
-        // Set font for better Arabic support
-        $pdf->setOption(['defaultFont' => 'cairo']);
-
-        // Return the PDF for download
-        return $pdf->download('loyalty-system-api-guide.pdf');
+        // يمكن إضافة منطق تحميل PDF هنا
+        return response()->json(['message' => 'سيتم إضافة هذه الميزة قريباً']);
     }
 }
