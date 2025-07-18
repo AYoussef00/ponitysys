@@ -543,7 +543,7 @@ $(document).ready(function() {
         };
 
         $.ajax({
-            url: '/api/v1/customers/register',
+            url: 'https://pointsys.clarastars.com/api/v1/customers/register',
             type: 'POST',
             data: formData,
             processData: false,
@@ -553,7 +553,7 @@ $(document).ready(function() {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             beforeSend: function() {
-                console.log('Sending request to:', '/api/v1/customers/register');
+                console.log('Sending request to:', 'https://pointsys.clarastars.com/api/v1/customers/register');
                 console.log('Using API key:', testApiKey);
                 console.log('Customer data:', customerData);
             },
@@ -638,7 +638,7 @@ $(document).ready(function() {
         }
 
         $.ajax({
-            url: '/api/v1/customers/points/add',
+            url: 'https://pointsys.clarastars.com/api/v1/customers/points/add',
             type: 'POST',
             data: formData,
             processData: false,
@@ -700,7 +700,7 @@ $(document).ready(function() {
         }
 
         $.ajax({
-            url: `/api/v1/customers/${customerId}/balance`,
+            url: `https://pointsys.clarastars.com/api/v1/customers/${customerId}/balance`,
             type: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + testApiKey
@@ -753,7 +753,7 @@ $(document).ready(function() {
         }
 
         $.ajax({
-            url: '/api/v1/rewards',
+            url: 'https://pointsys.clarastars.com/api/v1/rewards',
             type: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + testApiKey

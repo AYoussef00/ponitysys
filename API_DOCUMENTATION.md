@@ -2,7 +2,7 @@
 
 ## Base URL
 ```
-http://127.0.0.1:8000/api/v1
+https://pointsys.clarastars.com/api/v1
 ```
 
 ## 1. تسجيل عميل جديد
@@ -139,8 +139,9 @@ http://127.0.0.1:8000/api/v1
 
 ### تسجيل عميل جديد:
 ```bash
-curl -X POST http://127.0.0.1:8000/api/v1/customers/register \
+curl -X POST https://pointsys.clarastars.com/api/v1/customers/register \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{
     "name": "أحمد محمد",
     "email": "ahmed@example.com",
@@ -150,8 +151,9 @@ curl -X POST http://127.0.0.1:8000/api/v1/customers/register \
 
 ### إضافة نقاط:
 ```bash
-curl -X POST http://127.0.0.1:8000/api/v1/customers/points/add \
+curl -X POST https://pointsys.clarastars.com/api/v1/customers/points/add \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{
     "customer_id": 1,
     "points": 100,
@@ -162,18 +164,21 @@ curl -X POST http://127.0.0.1:8000/api/v1/customers/points/add \
 
 ### استعلام الرصيد:
 ```bash
-curl -X GET http://127.0.0.1:8000/api/v1/customers/1/balance
+curl -X GET https://pointsys.clarastars.com/api/v1/customers/1/balance \
+  -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 ### عرض المكافآت:
 ```bash
-curl -X GET http://127.0.0.1:8000/api/v1/rewards
+curl -X GET https://pointsys.clarastars.com/api/v1/rewards \
+  -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 ### استبدال مكافأة:
 ```bash
-curl -X POST http://127.0.0.1:8000/api/v1/rewards/redeem \
+curl -X POST https://pointsys.clarastars.com/api/v1/rewards/redeem \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{
     "customer_id": 1,
     "reward_id": 1

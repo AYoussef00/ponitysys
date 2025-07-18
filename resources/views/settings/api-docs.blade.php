@@ -140,7 +140,7 @@
                                 <h6 class="font-weight-bold">تسجيل عميل جديد</h6>
                                 <div class="endpoint">
                                     <span class="badge badge-success">POST</span>
-                                    <code>/api/v1/customers/register</code>
+                                    <code>https://pointsys.clarastars.com/api/v1/customers/register</code>
                                 </div>
                                 <p>المعلمات المطلوبة:</p>
                                 <pre class="bg-light p-3 rounded">
@@ -158,7 +158,7 @@
                                 <h6 class="font-weight-bold">إضافة نقاط</h6>
                                 <div class="endpoint">
                                     <span class="badge badge-success">POST</span>
-                                    <code>/api/v1/customers/points/add</code>
+                                    <code>https://pointsys.clarastars.com/api/v1/customers/points/add</code>
                                 </div>
                                 <p>المعلمات المطلوبة:</p>
                                 <pre class="bg-light p-3 rounded">
@@ -174,7 +174,7 @@
                                 <h6 class="font-weight-bold">الاستعلام عن الرصيد</h6>
                                 <div class="endpoint">
                                     <span class="badge badge-primary">GET</span>
-                                    <code>/api/v1/customers/{customer_id}/balance</code>
+                                    <code>https://pointsys.clarastars.com/api/v1/customers/{customer_id}/balance</code>
                                 </div>
                             </div>
                         </div>
@@ -185,7 +185,7 @@
                                 <h6 class="font-weight-bold">استبدال النقاط بمكافأة</h6>
                                 <div class="endpoint">
                                     <span class="badge badge-success">POST</span>
-                                    <code>/api/v1/customers/points/redeem</code>
+                                    <code>https://pointsys.clarastars.com/api/v1/customers/points/redeem</code>
                                 </div>
                                 <p>المعلمات المطلوبة:</p>
                                 <pre class="bg-light p-3 rounded">

@@ -56,7 +56,7 @@
                 <div class="alert alert-info">
                     <h6>المعلومات الأساسية:</h6>
                     <ul class="mb-0">
-                        <li><strong>Base URL:</strong> <code>{{ url('/api/v1') }}</code></li>
+                        <li><strong>Base URL:</strong> <code>https://pointsys.clarastars.com/api/v1</code></li>
                         <li><strong>Content-Type:</strong> <code>application/json</code></li>
                         <li><strong>الاستجابة:</strong> جميع الاستجابات بصيغة JSON</li>
                     </ul>
@@ -81,7 +81,7 @@
                     <h6>مثال cURL:</h6>
                     <pre><code>curl -H "Authorization: Bearer sk_test_1234567890abcdef" \
      -H "Content-Type: application/json" \
-     https://your-domain.com/api/v1/customers</code></pre>
+     https://pointsys.clarastars.com/api/v1/customers</code></pre>
                 </div>
 
                 <div class="alert alert-warning">
@@ -159,7 +159,7 @@
 
                 <div class="mb-3">
                     <h6>مثال cURL:</h6>
-                    <pre><code>curl -X POST "{{ url('/api/v1/customers/register') }}" \
+                    <pre><code>curl -X POST "https://pointsys.clarastars.com/api/v1/customers/register" \
      -H "Authorization: Bearer YOUR_API_KEY" \
      -H "Content-Type: application/json" \
      -d '{
@@ -193,7 +193,7 @@
 
                 <div class="mb-3">
                     <h6>مثال cURL:</h6>
-                    <pre><code>curl -X GET "{{ url('/api/v1/customers/1/balance') }}" \
+                    <pre><code>curl -X GET "https://pointsys.clarastars.com/api/v1/customers/1/balance" \
      -H "Authorization: Bearer YOUR_API_KEY"</code></pre>
                 </div>
 
@@ -236,7 +236,7 @@
 
                 <div class="mb-3">
                     <h6>مثال cURL:</h6>
-                    <pre><code>curl -X POST "{{ url('/api/v1/customers/points/add') }}" \
+                    <pre><code>curl -X POST "https://pointsys.clarastars.com/api/v1/customers/points/add" \
      -H "Authorization: Bearer YOUR_API_KEY" \
      -H "Content-Type: application/json" \
      -d '{
@@ -278,7 +278,7 @@
 
                 <div class="mb-3">
                     <h6>مثال cURL:</h6>
-                    <pre><code>curl -X GET "{{ url('/api/v1/rewards') }}" \
+                    <pre><code>curl -X GET "https://pointsys.clarastars.com/api/v1/rewards" \
      -H "Authorization: Bearer YOUR_API_KEY"</code></pre>
                 </div>
 
@@ -326,7 +326,7 @@
 
                 <div class="mb-3">
                     <h6>مثال cURL:</h6>
-                    <pre><code>curl -X POST "{{ url('/api/v1/rewards/redeem') }}" \
+                    <pre><code>curl -X POST "https://pointsys.clarastars.com/api/v1/rewards/redeem" \
      -H "Authorization: Bearer YOUR_API_KEY" \
      -H "Content-Type: application/json" \
      -d '{
