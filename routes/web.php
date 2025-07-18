@@ -19,6 +19,24 @@ use App\Http\Controllers\ApiDocsController;
 // توجيه الصفحة الرئيسية إلى تسجيل الدخول
 Route::redirect('/', '/login');
 
+// Route test للتحقق من الـ authentication
+Route::get('/test-auth', function () {
+    if (auth()->check()) {
+        return response()->json([
+            'authenticated' => true,
+            'user_id' => auth()->id(),
+            'user_name' => auth()->user()->name,
+            'user_email' => auth()->user()->email,
+            'customers_count' => \App\Models\Customer::where('user_id', auth()->id())->count()
+        ]);
+    } else {
+        return response()->json([
+            'authenticated' => false,
+            'message' => 'غير مسجل دخول'
+        ]);
+    }
+});
+
 // مسارات المصادقة - للزوار فقط
 Route::middleware('guest')->group(function () {
     // تسجيل الدخول
