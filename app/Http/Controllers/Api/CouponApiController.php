@@ -30,6 +30,9 @@ class CouponApiController extends Controller
                     'description' => $coupon->description,
                     'type' => $coupon->type,
                     'value' => $coupon->value,
+                    'price' => $coupon->price,
+                    'is_paid' => $coupon->is_paid,
+                    'formatted_price' => $coupon->getFormattedPrice(),
                     'points_required' => $coupon->points_required,
                     'usage_limit' => $coupon->usage_limit,
                     'used_count' => $coupon->used_count,
@@ -74,6 +77,9 @@ class CouponApiController extends Controller
                 'description' => $coupon->description,
                 'type' => $coupon->type,
                 'value' => $coupon->value,
+                'price' => $coupon->price,
+                'is_paid' => $coupon->is_paid,
+                'formatted_price' => $coupon->getFormattedPrice(),
                 'points_required' => $coupon->points_required,
                 'usage_limit' => $coupon->usage_limit,
                 'used_count' => $coupon->used_count,
@@ -101,6 +107,8 @@ class CouponApiController extends Controller
             'description' => 'nullable|string',
             'type' => 'required|in:fixed,percentage',
             'value' => 'required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0',
+            'is_paid' => 'boolean',
             'points_required' => 'nullable|integer|min:0',
             'usage_limit' => 'nullable|integer|min:1',
             'minimum_purchase' => 'nullable|numeric|min:0',
@@ -128,6 +136,8 @@ class CouponApiController extends Controller
             'description' => $request->description,
             'type' => $request->type,
             'value' => $request->value,
+            'price' => $request->price,
+            'is_paid' => $request->is_paid ?? false,
             'points_required' => $request->points_required ?? 0,
             'usage_limit' => $request->usage_limit,
             'minimum_purchase' => $request->minimum_purchase,
@@ -145,6 +155,9 @@ class CouponApiController extends Controller
                 'id' => $coupon->id,
                 'code' => $coupon->code,
                 'name' => $coupon->name,
+                'price' => $coupon->price,
+                'is_paid' => $coupon->is_paid,
+                'formatted_price' => $coupon->getFormattedPrice(),
                 'is_valid' => $coupon->isValid()
             ]
         ], 201);
@@ -174,6 +187,8 @@ class CouponApiController extends Controller
             'description' => 'nullable|string',
             'type' => 'sometimes|required|in:fixed,percentage',
             'value' => 'sometimes|required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0',
+            'is_paid' => 'boolean',
             'points_required' => 'nullable|integer|min:0',
             'usage_limit' => 'nullable|integer|min:1',
             'minimum_purchase' => 'nullable|numeric|min:0',
@@ -193,7 +208,7 @@ class CouponApiController extends Controller
         }
 
         $coupon->update($request->only([
-            'code', 'name', 'description', 'type', 'value', 'points_required',
+            'code', 'name', 'description', 'type', 'value', 'price', 'is_paid', 'points_required',
             'usage_limit', 'minimum_purchase', 'starts_at', 'expires_at',
             'eligibility_start', 'eligibility_end', 'status'
         ]));
@@ -205,6 +220,9 @@ class CouponApiController extends Controller
                 'id' => $coupon->id,
                 'code' => $coupon->code,
                 'name' => $coupon->name,
+                'price' => $coupon->price,
+                'is_paid' => $coupon->is_paid,
+                'formatted_price' => $coupon->getFormattedPrice(),
                 'is_valid' => $coupon->isValid()
             ]
         ]);
@@ -233,6 +251,32 @@ class CouponApiController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'تم حذف الكوبون بنجاح'
+        ]);
+    }
+
+    /**
+     * الحصول على إحصائيات الكوبونات
+     */
+    public function stats(Request $request)
+    {
+        $apiKeyUserId = $request->get('api_key_user_id');
+
+        $totalCoupons = Coupon::where('user_id', $apiKeyUserId)->count();
+        $activeCoupons = Coupon::where('user_id', $apiKeyUserId)->where('status', 'active')->count();
+        $paidCoupons = Coupon::where('user_id', $apiKeyUserId)->where('is_paid', true)->count();
+        $freeCoupons = Coupon::where('user_id', $apiKeyUserId)->where('is_paid', false)->count();
+        $totalRevenue = Coupon::where('user_id', $apiKeyUserId)->where('is_paid', true)->sum('price');
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'total_coupons' => $totalCoupons,
+                'active_coupons' => $activeCoupons,
+                'paid_coupons' => $paidCoupons,
+                'free_coupons' => $freeCoupons,
+                'total_revenue' => $totalRevenue,
+                'formatted_revenue' => number_format($totalRevenue, 2) . ' ريال'
+            ]
         ]);
     }
 
@@ -274,6 +318,16 @@ class CouponApiController extends Controller
             ], 400);
         }
 
+        // التحقق من أن الكوبون مدفوع
+        if ($coupon->isPaid()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'هذا الكوبون مدفوع ويحتاج إلى شراء بقيمة ' . $coupon->getFormattedPrice(),
+                'is_paid' => true,
+                'price' => $coupon->price
+            ], 400);
+        }
+
         // التحقق من الحد الأدنى للشراء
         if ($coupon->minimum_purchase && $request->amount < $coupon->minimum_purchase) {
             return response()->json([
@@ -293,9 +347,13 @@ class CouponApiController extends Controller
                 'name' => $coupon->name,
                 'type' => $coupon->type,
                 'value' => $coupon->value,
+                'price' => $coupon->price,
+                'is_paid' => $coupon->is_paid,
+                'formatted_price' => $coupon->getFormattedPrice(),
                 'discount_amount' => $discount,
                 'original_amount' => $request->amount,
-                'final_amount' => $request->amount - $discount
+                'final_amount' => $request->amount - $discount,
+                'is_paid' => false
             ]
         ]);
     }

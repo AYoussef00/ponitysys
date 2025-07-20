@@ -16,6 +16,8 @@ class Coupon extends Model
         'description',
         'type',
         'value',
+        'price',
+        'is_paid',
         'points_required',
         'usage_limit',
         'used_count',
@@ -32,13 +34,41 @@ class Coupon extends Model
         'expires_at' => 'datetime',
         'eligibility_start' => 'datetime',
         'eligibility_end' => 'datetime',
-        'value' => 'decimal:2'
+        'value' => 'decimal:2',
+        'price' => 'decimal:2',
+        'is_paid' => 'boolean'
     ];
 
     // علاقة مع المستخدم
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    // التحقق من أن الكوبون مدفوع
+    public function isPaid()
+    {
+        return $this->is_paid && $this->price > 0;
+    }
+
+    // الحصول على سعر الكوبون مع التنسيق
+    public function getFormattedPrice()
+    {
+        return $this->price ? number_format($this->price, 2) . ' ريال' : 'مجاني';
+    }
+
+    // حساب إجمالي الإيرادات من الكوبونات المدفوعة
+    public static function getTotalRevenue()
+    {
+        return self::where('is_paid', true)
+                   ->where('price', '>', 0)
+                   ->sum('price');
+    }
+
+    // الحصول على إجمالي الإيرادات مع التنسيق
+    public static function getFormattedTotalRevenue()
+    {
+        return number_format(self::getTotalRevenue(), 2) . ' ريال';
     }
 
     // التحقق من صلاحية الكوبون

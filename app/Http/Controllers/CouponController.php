@@ -21,6 +21,8 @@ class CouponController extends Controller
             'name' => 'required',
             'type' => 'required|in:fixed,percentage',
             'value' => 'required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0',
+            'is_paid' => 'boolean',
             'expires_at' => 'nullable|date|after:today',
             'eligibility_start' => 'nullable|date',
             'eligibility_end' => 'nullable|date|after_or_equal:eligibility_start',
@@ -53,6 +55,8 @@ class CouponController extends Controller
             'name' => 'required',
             'type' => 'required|in:fixed,percentage',
             'value' => 'required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0',
+            'is_paid' => 'boolean',
             'expires_at' => 'nullable|date|after:today',
             'eligibility_start' => 'nullable|date',
             'eligibility_end' => 'nullable|date|after_or_equal:eligibility_start',
@@ -93,6 +97,21 @@ class CouponController extends Controller
             ->with('success', 'تم تغيير حالة الكوبون بنجاح');
     }
 
+    // إحصائيات الكوبونات
+    public function stats()
+    {
+        $stats = [
+            'total_coupons' => Coupon::where('user_id', auth()->id())->count(),
+            'active_coupons' => Coupon::where('user_id', auth()->id())->where('status', 'active')->count(),
+            'paid_coupons' => Coupon::where('user_id', auth()->id())->where('is_paid', true)->count(),
+            'free_coupons' => Coupon::where('user_id', auth()->id())->where('is_paid', false)->count(),
+            'total_revenue' => Coupon::where('user_id', auth()->id())->where('is_paid', true)->sum('price'),
+            'expiring_soon' => Coupon::where('user_id', auth()->id())->where('expires_at', '<=', now()->addDays(7))->count()
+        ];
+
+        return response()->json($stats);
+    }
+
     // التحقق من صلاحية الكوبون
     public function validateCoupon(Request $request)
     {
@@ -110,6 +129,16 @@ class CouponController extends Controller
             ]);
         }
 
+        // التحقق من أن الكوبون مدفوع
+        if ($coupon->isPaid()) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'هذا الكوبون مدفوع ويحتاج إلى شراء بقيمة ' . $coupon->getFormattedPrice(),
+                'is_paid' => true,
+                'price' => $coupon->price
+            ]);
+        }
+
         if ($coupon->minimum_purchase && $request->amount < $coupon->minimum_purchase) {
             return response()->json([
                 'valid' => false,
@@ -122,6 +151,7 @@ class CouponController extends Controller
         return response()->json([
             'valid' => true,
             'discount' => $discount,
+            'is_paid' => false,
             'message' => 'تم تطبيق الكوبون بنجاح'
         ]);
     }

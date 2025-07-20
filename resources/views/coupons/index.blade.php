@@ -38,6 +38,23 @@
             </div>
         </div>
     </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-success bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-currency-dollar text-success fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-1">إجمالي الإيرادات</p>
+                        <h3 class="mb-0">{{ \App\Models\Coupon::getFormattedTotalRevenue() }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="col-12 col-sm-6 col-xl-3">
         <div class="card border-0 shadow-sm">
@@ -63,7 +80,24 @@
                 <div class="d-flex align-items-center">
                     <div class="flex-shrink-0">
                         <div class="bg-warning bg-opacity-10 p-3 rounded">
-                            <i class="bi bi-clock-history text-warning fs-4"></i>
+                            <i class="bi bi-gift text-warning fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-1">الكوبونات المجانية</p>
+                        <h3 class="mb-0">{{ $coupons->where('is_paid', false)->count() }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-danger bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-clock-history text-danger fs-4"></i>
                         </div>
                     </div>
                     <div class="flex-grow-1 ms-3">
@@ -81,12 +115,12 @@
                 <div class="d-flex align-items-center">
                     <div class="flex-shrink-0">
                         <div class="bg-info bg-opacity-10 p-3 rounded">
-                            <i class="bi bi-graph-up text-info fs-4"></i>
+                            <i class="bi bi-credit-card text-info fs-4"></i>
                         </div>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-1">معدل الاستخدام</p>
-                        <h3 class="mb-0">65%</h3>
+                        <p class="text-muted mb-1">الكوبونات المدفوعة</p>
+                        <h3 class="mb-0">{{ $coupons->where('is_paid', true)->count() }}</h3>
                     </div>
                 </div>
             </div>
@@ -108,11 +142,16 @@
             </div>
             <div class="col-12 col-lg-6">
                 <div class="d-flex gap-2 justify-content-lg-end">
-                    <select class="form-select w-auto">
+                    <select class="form-select w-auto me-2">
                         <option value="">كل الحالات</option>
                         <option value="active">نشط</option>
                         <option value="inactive">غير نشط</option>
                         <option value="expired">منتهي الصلاحية</option>
+                    </select>
+                    <select class="form-select w-auto me-2">
+                        <option value="">كل الأنواع</option>
+                        <option value="paid">مدفوع</option>
+                        <option value="free">مجاني</option>
                     </select>
                     <button class="btn btn-light" type="button">
                         <i class="bi bi-download me-2"></i>
@@ -135,6 +174,7 @@
                         <th>الاسم</th>
                         <th>النوع</th>
                         <th>القيمة</th>
+                        <th>السعر</th>
                         <th>تاريخ التفعيل</th>
                         <th>تاريخ الانتهاء</th>
                         <th>تاريخ الإنشاء</th>
@@ -159,6 +199,13 @@
                                 {{ $coupon->value }}%
                             @else
                                 {{ $coupon->value }} ريال
+                            @endif
+                        </td>
+                        <td>
+                            @if($coupon->is_paid && $coupon->price)
+                                <span class="badge bg-warning">{{ $coupon->price }} ريال</span>
+                            @else
+                                <span class="badge bg-success">مجاني</span>
                             @endif
                         </td>
                         <td>
@@ -285,6 +332,23 @@
                             @enderror
                         </div>
                         <div class="col-md-6">
+                            <label class="form-label">نوع الكوبون</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_paid" value="1" id="isPaidCheck" {{ old('is_paid') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="isPaidCheck">
+                                    كوبون مدفوع
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="priceField" style="display: none;">
+                            <label class="form-label">سعر الكوبون (ريال)</label>
+                            <input type="number" name="price" step="0.01" class="form-control @error('price') is-invalid @enderror"
+                                placeholder="أدخل السعر" value="{{ old('price') }}">
+                            @error('price')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6">
                             <label class="form-label">تاريخ التفعيل</label>
                             <input type="date" name="starts_at" class="form-control @error('starts_at') is-invalid @enderror"
                                 value="{{ old('starts_at') }}">
@@ -352,6 +416,19 @@
                             <input type="number" name="value" step="0.01" class="form-control" value="{{ $coupon->value }}">
                         </div>
                         <div class="col-md-6">
+                            <label class="form-label">نوع الكوبون</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_paid" value="1" id="isPaidCheck{{ $coupon->id }}" {{ $coupon->is_paid ? 'checked' : '' }}>
+                                <label class="form-check-label" for="isPaidCheck{{ $coupon->id }}">
+                                    كوبون مدفوع
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="priceField{{ $coupon->id }}" style="display: {{ $coupon->is_paid ? 'block' : 'none' }};">
+                            <label class="form-label">سعر الكوبون (ريال)</label>
+                            <input type="number" name="price" step="0.01" class="form-control" value="{{ $coupon->price }}">
+                        </div>
+                        <div class="col-md-6">
                             <label class="form-label">تاريخ التفعيل</label>
                             <input type="date" name="starts_at" class="form-control" value="{{ optional($coupon->starts_at)->format('Y-m-d') }}">
                         </div>
@@ -398,4 +475,30 @@
     font-weight: 500;
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // للكوبون الجديد
+    const isPaidCheck = document.getElementById('isPaidCheck');
+    const priceField = document.getElementById('priceField');
+
+    if (isPaidCheck) {
+        isPaidCheck.addEventListener('change', function() {
+            priceField.style.display = this.checked ? 'block' : 'none';
+        });
+    }
+
+    // للكوبونات الموجودة
+    @foreach($coupons as $coupon)
+    const isPaidCheck{{ $coupon->id }} = document.getElementById('isPaidCheck{{ $coupon->id }}');
+    const priceField{{ $coupon->id }} = document.getElementById('priceField{{ $coupon->id }}');
+
+    if (isPaidCheck{{ $coupon->id }}) {
+        isPaidCheck{{ $coupon->id }}.addEventListener('change', function() {
+            priceField{{ $coupon->id }}.style.display = this.checked ? 'block' : 'none';
+        });
+    }
+    @endforeach
+});
+</script>
 @endsection

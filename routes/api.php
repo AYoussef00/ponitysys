@@ -43,6 +43,7 @@ Route::prefix('v1')->middleware('api.key')->group(function () {
 
     // مسارات الكوبونات
     Route::get('/coupons', [CouponApiController::class, 'index']);
+    Route::get('/coupons/stats', [CouponApiController::class, 'stats']);
     Route::get('/coupons/{id}', [CouponApiController::class, 'show']);
     Route::post('/coupons', [CouponApiController::class, 'store']);
     Route::put('/coupons/{id}', [CouponApiController::class, 'update']);

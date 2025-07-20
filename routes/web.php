@@ -161,4 +161,5 @@ Route::middleware('auth')->group(function () {
     Route::resource('coupons', CouponController::class);
     Route::post('coupons/{coupon}/toggle', [CouponController::class, 'toggleStatus'])->name('coupons.toggle');
     Route::post('coupons/validate', [CouponController::class, 'validateCoupon'])->name('coupons.validate');
+    Route::get('coupons/stats', [CouponController::class, 'stats'])->name('coupons.stats');
 });
