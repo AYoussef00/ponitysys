@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CustomerApiController;
 use App\Http\Controllers\Api\RewardApiController;
+use App\Http\Controllers\Api\CouponApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,4 +40,12 @@ Route::prefix('v1')->middleware('api.key')->group(function () {
 
     // استبدال نقاط بمكافأة
     Route::post('/rewards/redeem', [RewardApiController::class, 'redeem']);
+
+    // مسارات الكوبونات
+    Route::get('/coupons', [CouponApiController::class, 'index']);
+    Route::get('/coupons/{id}', [CouponApiController::class, 'show']);
+    Route::post('/coupons', [CouponApiController::class, 'store']);
+    Route::put('/coupons/{id}', [CouponApiController::class, 'update']);
+    Route::delete('/coupons/{id}', [CouponApiController::class, 'destroy']);
+    Route::post('/coupons/validate', [CouponApiController::class, 'validateCoupon']);
 });
