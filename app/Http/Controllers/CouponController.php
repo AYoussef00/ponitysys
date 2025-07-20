@@ -10,7 +10,7 @@ class CouponController extends Controller
 {
     public function index()
     {
-        $coupons = Coupon::latest()->paginate(10);
+        $coupons = Coupon::where('user_id', auth()->id())->latest()->paginate(10);
         return view('coupons.index', compact('coupons'));
     }
 
@@ -32,6 +32,9 @@ class CouponController extends Controller
             $validated['code'] = strtoupper(Str::random(8));
         }
 
+        // إضافة user_id للمستخدم الحالي
+        $validated['user_id'] = auth()->id();
+
         $coupon = Coupon::create($validated);
 
         return redirect()->route('coupons.index')
@@ -40,6 +43,11 @@ class CouponController extends Controller
 
     public function update(Request $request, Coupon $coupon)
     {
+        // التأكد من أن الكوبون يخص المستخدم الحالي
+        if ($coupon->user_id !== auth()->id()) {
+            abort(403, 'غير مصرح لك بتعديل هذا الكوبون');
+        }
+
         $validated = $request->validate([
             'code' => 'required|unique:coupons,code,' . $coupon->id,
             'name' => 'required',
@@ -60,6 +68,11 @@ class CouponController extends Controller
 
     public function destroy(Coupon $coupon)
     {
+        // التأكد من أن الكوبون يخص المستخدم الحالي
+        if ($coupon->user_id !== auth()->id()) {
+            abort(403, 'غير مصرح لك بحذف هذا الكوبون');
+        }
+
         $coupon->delete();
 
         return redirect()->route('coupons.index')
@@ -68,6 +81,11 @@ class CouponController extends Controller
 
     public function toggleStatus(Coupon $coupon)
     {
+        // التأكد من أن الكوبون يخص المستخدم الحالي
+        if ($coupon->user_id !== auth()->id()) {
+            abort(403, 'غير مصرح لك بتغيير حالة هذا الكوبون');
+        }
+
         $coupon->status = $coupon->status === 'active' ? 'inactive' : 'active';
         $coupon->save();
 

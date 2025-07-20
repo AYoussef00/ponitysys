@@ -16,7 +16,10 @@ class Coupon extends Model
         'description',
         'type',
         'value',
+        'points_required',
+        'usage_limit',
         'used_count',
+        'minimum_purchase',
         'starts_at',
         'expires_at',
         'eligibility_start',
@@ -31,6 +34,12 @@ class Coupon extends Model
         'eligibility_end' => 'datetime',
         'value' => 'decimal:2'
     ];
+
+    // علاقة مع المستخدم
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     // التحقق من صلاحية الكوبون
     public function isValid()
