@@ -14,10 +14,17 @@ class DefaultAdminSeeder extends Seeder
      */
     public function run(): void
     {
-        Admin::create([
-            'name' => 'Super Admin',
-            'email' => 'admin@admin.com',
-            'password' => Hash::make('admin123'),
-        ]);
+        // التحقق من عدم وجود الأدمن مسبقاً
+        if (!Admin::where('email', 'admin@admin.com')->exists()) {
+            Admin::create([
+                'name' => 'Super Admin',
+                'email' => 'admin@admin.com',
+                'password' => Hash::make('admin123'),
+            ]);
+
+            $this->command->info('✅ تم إنشاء الأدمن admin@admin.com بنجاح');
+        } else {
+            $this->command->info('⚠️ الأدمن admin@admin.com موجود بالفعل');
+        }
     }
 }

@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
         $this->command->info('🌱 بدء تشغيل الـ seeders...');
 
         $this->call([
+            DefaultAdminSeeder::class,
             SafeServerSeeder::class,
         ]);
 

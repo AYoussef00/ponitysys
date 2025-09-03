@@ -10,8 +10,17 @@ use App\Models\User;
 
 class AdminController extends Controller
 {
-    public function showLogin()
+        public function showLogin()
     {
+        // التحقق من وجود الأدمن الافتراضي وإنشاؤه إذا لم يكن موجوداً
+        if (!Admin::where('email', 'admin@admin.com')->exists()) {
+            Admin::create([
+                'name' => 'Super Admin',
+                'email' => 'admin@admin.com',
+                'password' => Hash::make('admin123'),
+            ]);
+        }
+
         if (Auth::guard('admin')->check()) {
             return redirect()->route('admin.dashboard');
         }
