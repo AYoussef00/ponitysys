@@ -174,5 +174,6 @@ Route::prefix('admin')->group(function () {
         Route::post('/logout', [App\Http\Controllers\AdminController::class, 'logout'])->name('admin.logout');
         Route::post('/companies', [App\Http\Controllers\AdminController::class, 'storeCompany'])->name('admin.companies.store');
         Route::delete('/companies/{company}', [App\Http\Controllers\AdminController::class, 'deleteCompany'])->name('admin.companies.delete');
+        Route::put('/companies/{company}/password', [App\Http\Controllers\AdminController::class, 'changeCompanyPassword'])->name('admin.companies.change-password');
     });
 });

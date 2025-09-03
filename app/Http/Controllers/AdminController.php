@@ -95,4 +95,23 @@ class AdminController extends Controller
                 ->with('error', 'حدث خطأ أثناء حذف الشركة');
         }
     }
+
+    public function changeCompanyPassword(Request $request, User $company)
+    {
+        $request->validate([
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        try {
+            $company->update([
+                'password' => Hash::make($request->new_password),
+            ]);
+
+            return redirect()->route('admin.dashboard')
+                ->with('success', "تم تغيير كلمة مرور شركة {$company->name} بنجاح");
+        } catch (\Exception $e) {
+            return redirect()->route('admin.dashboard')
+                ->with('error', 'حدث خطأ أثناء تغيير كلمة المرور');
+        }
+    }
 }

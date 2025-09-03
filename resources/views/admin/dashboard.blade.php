@@ -183,6 +183,24 @@
             box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
         }
 
+        .btn-outline-primary {
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+        }
+
+        .btn-group .btn {
+            margin-right: 5px;
+        }
+
+        .input-group .btn {
+            border-radius: 0 8px 8px 0;
+        }
+
         .table tbody tr {
             transition: all 0.3s ease;
         }
@@ -338,12 +356,20 @@
                                                 <td>
                                                     <span class="badge bg-success">نشط</span>
                                                 </td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-outline-danger"
-                                                            onclick="confirmDelete({{ $company->id }}, '{{ $company->name }}')"
-                                                            title="حذف الشركة">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
+                                                                                                <td>
+                                                    <div class="btn-group">
+                                                        <button class="btn btn-sm btn-outline-primary"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#changePasswordModal{{ $company->id }}"
+                                                                title="تغيير كلمة المرور">
+                                                            <i class="bi bi-key"></i>
+                                                        </button>
+                                                        <button class="btn btn-sm btn-outline-danger"
+                                                                onclick="confirmDelete({{ $company->id }}, '{{ $company->name }}')"
+                                                                title="حذف الشركة">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </div>
 
                                                     <form id="delete-form-{{ $company->id }}"
                                                           action="{{ route('admin.companies.delete', $company) }}"
@@ -429,7 +455,92 @@
                 </form>
             </div>
         </div>
+        </div>
+
+    <!-- Change Password Modals -->
+    @foreach($recentCompanies as $company)
+    <div class="modal fade" id="changePasswordModal{{ $company->id }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title text-white">
+                        <i class="bi bi-key me-2"></i>
+                        تغيير كلمة مرور شركة {{ $company->name }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ route('admin.companies.change-password', $company) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>الشركة:</strong> {{ $company->name }} <br>
+                            <strong>الإيميل:</strong> {{ $company->email }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="new_password{{ $company->id }}" class="form-label">كلمة المرور الجديدة</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-lock"></i>
+                                </span>
+                                <input type="password"
+                                       class="form-control @error('new_password') is-invalid @enderror"
+                                       id="new_password{{ $company->id }}"
+                                       name="new_password"
+                                       required
+                                       minlength="8"
+                                       placeholder="أدخل كلمة المرور الجديدة">
+                                <button type="button"
+                                        class="btn btn-outline-secondary"
+                                        onclick="togglePassword('new_password{{ $company->id }}')">
+                                    <i class="bi bi-eye" id="eye{{ $company->id }}"></i>
+                                </button>
+                            </div>
+                            @error('new_password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="new_password_confirmation{{ $company->id }}" class="form-label">تأكيد كلمة المرور</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-lock-fill"></i>
+                                </span>
+                                <input type="password"
+                                       class="form-control"
+                                       id="new_password_confirmation{{ $company->id }}"
+                                       name="new_password_confirmation"
+                                       required
+                                       minlength="8"
+                                       placeholder="أعد كتابة كلمة المرور">
+                                <button type="button"
+                                        class="btn btn-outline-secondary"
+                                        onclick="togglePassword('new_password_confirmation{{ $company->id }}')">
+                                    <i class="bi bi-eye" id="eye_confirm{{ $company->id }}"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>تحذير:</strong> سيتم تسجيل خروج الشركة من جميع الأجهزة بعد تغيير كلمة المرور.
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check2 me-2"></i>
+                            تغيير كلمة المرور
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
+    @endforeach
 
     <!-- Logout Form -->
     <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" class="d-none">
@@ -440,7 +551,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        function confirmDelete(companyId, companyName) {
+                function confirmDelete(companyId, companyName) {
             Swal.fire({
                 title: 'هل أنت متأكد؟',
                 text: `سيتم حذف شركة "${companyName}" نهائياً ولا يمكن التراجع عن هذا الإجراء!`,
@@ -472,6 +583,19 @@
                     document.getElementById(`delete-form-${companyId}`).submit();
                 }
             });
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const eyeIcon = document.getElementById('eye' + inputId.replace('new_password', '').replace('_confirmation', '_confirm'));
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeIcon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                eyeIcon.className = 'bi bi-eye';
+            }
         }
     </script>
 </body>
