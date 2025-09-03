@@ -158,8 +158,21 @@ Route::middleware('auth')->group(function () {
     Route::resource('transactions', TransactionController::class);
 
     // مسارات الكوبونات
-    Route::resource('coupons', CouponController::class);
-    Route::post('coupons/{coupon}/toggle', [CouponController::class, 'toggleStatus'])->name('coupons.toggle');
-    Route::post('coupons/validate', [CouponController::class, 'validateCoupon'])->name('coupons.validate');
-    Route::get('coupons/stats', [CouponController::class, 'stats'])->name('coupons.stats');
+Route::resource('coupons', CouponController::class);
+Route::post('coupons/{coupon}/toggle', [CouponController::class, 'toggleStatus'])->name('coupons.toggle');
+Route::post('coupons/validate', [CouponController::class, 'validateCoupon'])->name('coupons.validate');
+Route::get('coupons/stats', [CouponController::class, 'stats'])->name('coupons.stats');
+});
+
+// مسارات الأدمن
+Route::prefix('admin')->group(function () {
+    Route::get('/login', [App\Http\Controllers\AdminController::class, 'showLogin'])->name('admin.login');
+    Route::post('/login', [App\Http\Controllers\AdminController::class, 'login']);
+
+    Route::middleware('auth:admin')->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::post('/logout', [App\Http\Controllers\AdminController::class, 'logout'])->name('admin.logout');
+        Route::post('/companies', [App\Http\Controllers\AdminController::class, 'storeCompany'])->name('admin.companies.store');
+        Route::delete('/companies/{company}', [App\Http\Controllers\AdminController::class, 'deleteCompany'])->name('admin.companies.delete');
+    });
 });
